@@ -1,0 +1,210 @@
+/* =========================================================
+   A CAIXA DE FÓSFOROS · PLANTA DO COMPLEXO
+   data.js · tudo o que aparece no mapa mora aqui.
+   Para trocar um nome de sala ou de criatura, edite este arquivo.
+   ========================================================= */
+
+/* Ordem das 25 salas na planta (espiral, igual ao tabuleiro físico).
+   Cada linha é uma fileira do mapa, de cima para baixo.
+   O número é a posição da sala dentro do andar (1 a 25).
+   A sala 25 fica no centro e é sempre a Zona Neutra. */
+const LAYOUT = [
+  [ 1,  2,  3,  4,  5],
+  [16, 17, 18, 19,  6],
+  [15, 24, 25, 20,  7],
+  [14, 23, 22, 21,  8],
+  [13, 12, 11, 10,  9],
+];
+
+/* Elementos: S Sangue, M Morte, C Conhecimento, E Energia,
+   F Medo, ? ainda não registrado.
+   A Zona Neutra (sala 25 de cada andar) é de Medo por padrão. */
+const ELEMENTOS = {
+  S: { nome: 'Sangue',        cor: '#b3262e' },
+  M: { nome: 'Morte',         cor: '#4a4a4a' },
+  C: { nome: 'Conhecimento',  cor: '#c99a1a' },
+  E: { nome: 'Energia',       cor: '#8a3fd1' },
+  F: { nome: 'Medo',          cor: '#e9e4f2' },
+  N: { nome: 'Zona Neutra',   cor: '#2f6f6a' },
+  '?': { nome: 'Não registrado', cor: '#33303a' },
+};
+
+/* Os 5 andares. As salas de cada andar seguem a numeração CN:
+   1º andar CN 01 a 25 · 2º andar CN 26 a 50 · 3º CN 51 a 75 · 4º CN 76 a 100 · 5º CN 101 a 125.
+   "salas" usa o número CN como chave: [nome, elemento].
+   Sala sem nome aparece só com o número CN.
+   "saida" é o número CN da sala que leva ao elevador/porta para o próximo andar.
+   Sala na borda da planta: o elevador aparece como um corredor saindo para fora.
+   Sala de dentro da planta: o elevador aparece como um poço no chão da sala. */
+const ANDARES = [
+  {
+    id: 1, titulo: '1º Andar', subtitulo: 'Hospital e laboratório',
+    saida: 11,
+    salas: {
+      1:  ['Loja de Conveniência 24hrs', 'M'],
+      2:  ['Sala de Dados Criptografados', 'C'],
+      3:  ['Sala de Alta Voltagem', 'E'],
+      4:  ['Consultório Odontológico Anos 2000', 'M'],
+      5:  ['Laboratório de Computação Analítica', 'C'],
+      6:  ['Sala de Transfusão Experimental', 'S'],
+      7:  ['Sala de Ventiladores Industriais', 'E'],
+      8:  ['Depósito Estrutural da ORFEU', 'C'],
+      9:  ['Câmara de Vapor Metálico', 'S'],
+      10: ['Quarto de Turbinas de Ar', 'E'],
+      11: ['Sala de Aula Congelada no Tempo', 'M'],
+      12: ['Laboratório de Fonética e Linguagens', 'C'],
+      13: ['Sala Hemodinâmica', 'S'],
+      14: ['Câmara de Pressão Mecânica', 'E'],
+      15: ['Escritório Administrativo Abandonado', 'M'],
+      16: ['Centro de Artefatos Cognitivos', 'C'],
+      17: ['Laboratório de Amostras', 'S'],
+      18: ['Núcleo de Circuitos Pesados', 'E'],
+      19: ['Sala de Vídeo Antiga', 'M'],
+      20: ['Sala de Testes Psicológicos Avançados', 'C'],
+      21: ['Câmara de Isolamento Vermelho', 'S'],
+      22: ['?????', 'F'],
+      23: ['Sala de Espera Hospitalar', 'M'],
+      24: ['Sala de Pensamento Invertido', 'C'],
+      25: ['Zona Neutra', 'F'],
+    },
+  },
+  /* Andares 2 a 5: nomes, elementos, subtítulo e elevador NÃO ficam aqui
+     (este arquivo é público). O Mestre importa ou edita pelo painel, e os
+     jogadores só recebem o nome de uma sala quando ela é revelada. */
+  { id: 2, titulo: '2º Andar', subtitulo: '', saida: null, salas: {} },
+  { id: 3, titulo: '3º Andar', subtitulo: '', saida: null, salas: {} },
+  { id: 4, titulo: '4º Andar', subtitulo: '', saida: null, salas: {} },
+  { id: 5, titulo: '5º Andar', subtitulo: '', saida: null, salas: {} },
+];
+
+/* RUÍDO: a Zona Neutra (sala 25 de cada andar) não conta para o limite diário.
+   Troque para false se o barulho também valer lá dentro. */
+const ZONA_NEUTRA_ISENTA = true;
+
+/* ---------------------------------------------------------
+   OS SERES DA CAIXA
+   tipo: 'cobaia' (jogadores), 'npc' (cobaias NPC), 'robo' (Robôs S.T.A.F.F.), 'filho' (Filhos da O.R.F.E.U.)
+   ATENÇÃO: este arquivo é público. Nunca escreva aqui a função de nenhuma
+   cobaia: as funções ficam só com o Mestre, no painel "Funções".
+   Os Filhos aparecem só pelo codinome. O nome verdadeiro de cada um
+   NÃO está neste arquivo, de propósito: o repositório é público.
+   --------------------------------------------------------- */
+const SERES = [
+  // Cobaias dos jogadores
+  { id: 'faca',     tipo: 'cobaia', codigo: 'FHP-001', nome: 'Faca',     jogador: 'Nathalie Costa',  cor: '#27c46b', img: 'img/faca.jpg' },
+  { id: 'sabonete', tipo: 'cobaia', codigo: 'FHP-002', nome: 'Sabonete', jogador: 'Lucas Matheus',   cor: '#fff15a', img: 'img/sabonete.jpg' },
+  { id: 'mostarda', tipo: 'cobaia', codigo: 'FHP-003', nome: 'Mostarda', jogador: 'Carlos André',    cor: '#e5b81e', img: 'img/mostarda.jpg' },
+  { id: 'papelao',  tipo: 'cobaia', codigo: 'FHP-004', nome: 'Papelão',  jogador: 'André Carvalho',  cor: '#b98656', img: 'img/papelao.jpg' },
+  { id: 'papel',    tipo: 'cobaia', codigo: 'FHP-005', nome: 'Papel',    jogador: 'Danton Melo',     cor: '#111111', contorno: '#e8e8e8', img: 'img/papel.jpg' },
+  { id: 'luva',     tipo: 'cobaia', codigo: 'FHP-006', nome: 'Luva',     jogador: 'Gabriel Padilha', cor: '#ff7a1a', img: 'img/luva.jpg' },
+  { id: 'velcro',   tipo: 'cobaia', codigo: 'FHP-007', nome: 'Velcro',   jogador: 'Ricardo Filho',   cor: '#f5f5f5', img: 'img/velcro.jpg' },
+
+  // Cobaias NPC (só aparecem quando o mestre coloca no mapa)
+  { id: 'risa',        tipo: 'npc', codigo: 'FHP-008', nome: 'Risa',        cor: '#a3ff3c', img: 'img/risa.jpg' },
+  { id: 'coelho',      tipo: 'npc', codigo: 'FHP-009', nome: 'Coelho',      cor: '#ff3b3b', img: 'img/coelho.jpg' },
+  { id: 'cara-palida', tipo: 'npc', codigo: 'FHP-010', nome: 'Cara Pálida', cor: '#d8dde6', img: 'img/cara-palida.jpg' },
+  { id: 'onirico',     tipo: 'npc', codigo: 'FHP-011', nome: 'Onírico',     cor: '#7b61ff', img: 'img/onirico.jpg' },
+
+  // Robôs S.T.A.F.F. (não fazem barulho; o decibelímetro ignora)
+  { id: 'c2p0',    tipo: 'robo', jogador: 'Alice Pinheiro', codigo: 'S.T.A.F.F.', nome: 'C2P0',    cor: '#d9ad2b', img: 'img/c2p0.jpg' },
+  { id: 'b00bies', tipo: 'robo', jogador: 'Matheus Arizawa', codigo: 'S.T.A.F.F.', nome: 'B00BIES', cor: '#a7adb5', img: 'img/b00bies.jpg' },
+  { id: 'm3rl1n',  tipo: 'robo', jogador: 'Raphael Szczypior', codigo: 'S.T.A.F.F.', nome: 'M3RL1N',  cor: '#e03131', img: 'img/m3rl1n.jpg' },
+  { id: 'k4iser',  tipo: 'robo', jogador: 'Rodrigo T. Junior', codigo: 'S.T.A.F.F.', nome: 'K4ISER',  cor: '#ff7a3d', img: 'img/k4iser.jpg' },
+
+  // Filhos da O.R.F.E.U. (codinomes; podem entrar no mapa várias vezes)
+  { id: 'f01', tipo: 'filho', codigo: 'F-01', nome: 'Sobra',      cor: '#ff4d6d' },
+  { id: 'f02', tipo: 'filho', codigo: 'F-02', nome: 'Remendo',    cor: '#ff8fa3' },
+  { id: 'f03', tipo: 'filho', codigo: 'F-03', nome: 'Inquilina',  cor: '#4cc9f0' },
+  { id: 'f04', tipo: 'filho', codigo: 'F-04', nome: 'Colosso',    cor: '#d00000' },
+  { id: 'f05', tipo: 'filho', codigo: 'F-05', nome: 'Saudade',    cor: '#f72585' },
+  { id: 'f06', tipo: 'filho', codigo: 'F-06', nome: 'Resíduo',    cor: '#6b705c' },
+  { id: 'f07', tipo: 'filho', codigo: 'F-07', nome: 'Cela',       cor: '#9d8189' },
+  { id: 'f08', tipo: 'filho', codigo: 'F-08', nome: 'Jardineiro', cor: '#2d6a4f' },
+  { id: 'f09', tipo: 'filho', codigo: 'F-09', nome: 'Maestro',    cor: '#adb5bd' },
+  { id: 'f10', tipo: 'filho', codigo: 'F-10', nome: 'Berço',      cor: '#7f5539' },
+  { id: 'f11', tipo: 'filho', codigo: 'F-11', nome: 'Rascunho',   cor: '#ffd166' },
+  { id: 'f12', tipo: 'filho', codigo: 'F-12', nome: 'Retrato',    cor: '#ffb703' },
+  { id: 'f13', tipo: 'filho', codigo: 'F-13', nome: 'Plateia',    cor: '#fb8500' },
+  { id: 'f14', tipo: 'filho', codigo: 'F-14', nome: 'Debaixo',    cor: '#8d6e00' },
+  { id: 'f15', tipo: 'filho', codigo: 'F-15', nome: 'Estática',   cor: '#c77dff' },
+  { id: 'f16', tipo: 'filho', codigo: 'F-16', nome: 'Prótese',    cor: '#90e0ef' },
+  { id: 'f17', tipo: 'filho', codigo: 'F-17', nome: 'Curto',      cor: '#e0aaff' },
+  { id: 'f18', tipo: 'filho', codigo: 'F-18', nome: 'Ninguém',    cor: '#5a189a' },
+  { id: 'f19', tipo: 'filho', codigo: 'F-19', nome: 'Horizonte',  cor: '#3a86ff' },
+  { id: 'f00', tipo: 'filho', codigo: 'F-00', nome: 'Zero',       cor: '#ffffff' },
+  { id: 'f20', tipo: 'filho', codigo: 'F-20', nome: 'Pele-Alheia',    cor: '#e76f51' },
+  { id: 'f21', tipo: 'filho', codigo: 'F-21', nome: 'O Ouvinte',   cor: '#1b263b' },
+  { id: 'f22', tipo: 'filho', codigo: 'F-22', nome: 'Jazigo',     cor: '#7f8c6a' },
+  { id: 'f23', tipo: 'filho', codigo: 'F-23', nome: 'Mascote',    cor: '#c0533f' },
+  { id: 'f24', tipo: 'filho', codigo: 'F-24', nome: 'Negativo',   cor: '#a8916a' },
+  { id: 'f25', tipo: 'filho', codigo: 'F-25', nome: 'Desova',     cor: '#e58fa6' },
+  // cria: Filho pequeno e genérico (token menor no mapa); entra pelos botões de quem põe crias
+  { id: 'fc', tipo: 'filho', codigo: 'F-C', nome: 'Cria', cor: '#f3c1cf', mini: true },
+
+  // Presença: aparição que o Mestre e os auxiliares põem no mapa. Entre os jogadores, só quem o Mestre escolher
+  // (campo vis do token) enxerga; os outros nem sabem que ela está ali.
+  { id: 'fe', tipo: 'espectro', codigo: 'P-01', nome: 'Presença', cor: '#bcd4ff' },
+];
+
+/* ---------------------------------------------------------
+   LOJA DO MAURÍCIO: catálogo inicial (do PDF "Itens do Maurício").
+   O Mestre edita, oculta e cria vendas novas pelo painel; este é só
+   o ponto de partida. Custo em Sucatas: M = Maiores, m = Menores.
+   Cada opção: n = nome, d = dano, c = crítico, p = custo próprio (se tiver).
+   --------------------------------------------------------- */
+const LOJA_PADRAO = [
+  { id: 'simples', t: 'Armas simples', img: 'img/simples.jpg', custo: { M: 0, m: 2 },
+    op: [{ n: 'Arma simples', d: '1d4 / 1d6', c: '2x' }] },
+  { id: 'arremesso', t: 'Armas de arremesso (duas mãos)', img: 'img/arremesso.jpg', custo: { M: 1, m: 5 },
+    op: [{ n: 'Balestra', d: '1d12', c: '19' }, { n: 'Arco Composto', d: '1d10', c: '3x' }] },
+  { id: 'fogo-leves', t: 'Armas de fogo (leves)', img: 'img/fogo-leves.jpg', custo: { M: 1, m: 8 },
+    op: [{ n: 'Pistola', d: '1d12', c: '18' }, { n: 'Revólver', d: '2d6', c: '19 (x3)' }, { n: 'Fuzil de Caça', d: '2d8', c: '19 (x3)' }] },
+  { id: 'cac-leves', t: 'Corpo a corpo (leves)', img: 'img/cac-leves.jpg', custo: { M: 0, m: 2 },
+    op: [{ n: 'Nunchako', d: '1d8', c: '2x' }, { n: 'Machadinha', d: '1d6', c: '3x' }] },
+  { id: 'cac-uma-mao', t: 'Corpo a corpo (uma mão)', img: 'img/cac-uma-mao.jpg', custo: { M: 0, m: 5 },
+    op: [{ n: 'Espada', d: '1d10', c: '19' }, { n: 'Machado', d: '1d8', c: 'x3' }, { n: 'Maça', d: '2d4', c: 'x2' }] },
+  { id: 'cac-duas-maos', t: 'Corpo a corpo (duas mãos)', img: 'img/cac-duas-maos.jpg', custo: { M: 1, m: 3 },
+    op: [{ n: 'Katana', d: '1d10', c: '19' }, { n: 'Gadanho', d: '2d4', c: 'x4' }, { n: 'Marreta', d: '3d4', c: 'x2' }, { n: 'Montante', d: '2d6', c: '19' }, { n: 'Motossera', d: '3d6', c: 'x2' }] },
+  { id: 'fogo-uma-mao', t: 'Armas de fogo (uma mão)', img: 'img/fogo-uma-mao.jpg', custo: { M: 1, m: 10 },
+    op: [{ n: 'Submetralhadora', d: '2d6', c: '19 (x3)' }, { n: 'Desert Eagle', d: '2d8', c: '18' }] },
+  { id: 'fogo-duas-maos', t: 'Armas de fogo (duas mãos)', img: 'img/fogo-duas-maos.jpg', custo: { M: 3, m: 15 },
+    op: [{ n: 'Espingarda', d: '4d6', c: 'x3' }, { n: 'Fuzil de Assalto', d: '2d10', c: '19 (x3)' }, { n: 'Fuzil de Precisão', d: '2d10', c: '19 (x3)' }, { n: 'Espingarda Cano Duplo', d: '4d6', c: 'x3' }] },
+  { id: 'pesadas', t: 'Armas pesadas', img: 'img/pesadas.jpg', custo: { M: 10, m: 25 },
+    op: [{ n: 'Bazuca', d: '10d8', c: 'x2' }, { n: 'Lança Chamas', d: '6d6', c: 'x2' }, { n: 'Metralhadora', d: '2d12', c: '19 (x3)' }] },
+  { id: 'municoes', t: 'Munições variadas', img: 'img/municoes.jpg', custo: null,
+    op: [{ n: 'Bala Curta', p: { M: 0, m: 1 } }, { n: 'Bala Longa', p: { M: 0, m: 2 } }, { n: 'Flechas', p: { M: 0, m: 2 } }, { n: 'Foguete', p: { M: 2, m: 0 } }, { n: 'Combustível', p: { M: 2, m: 0 } }] },
+  { id: 'modificacoes', t: 'Modificações (armas e vestimentas)', img: 'img/modificacoes.jpg', custo: { M: 2, m: 6 },
+    op: [{ n: 'Calibre Grosso' }, { n: 'Discreta' }, { n: 'Cruel' }, { n: 'Certeira' }, { n: 'Tática' }, { n: 'Silenciador' }, { n: 'Ferrolho Automático' }, { n: 'Perigosa' }] },
+  { id: 'maldicoes', t: 'Maldições paranormais (armas e vestimentas)', img: 'img/maldicoes.jpg', custo: { M: 15, m: 0 },
+    op: [{ n: 'Maldição paranormal' }] },
+  { id: 'itens-paranormais', t: 'Itens paranormais', img: 'img/itens-paranormais.jpg', custo: { M: 20, m: 0 },
+    op: [{ n: 'Item paranormal' }] },
+];
+
+/* MELHORIAS DA ZONA NEUTRA (catálogo inicial, do Milanote).
+   O Mestre gerencia tudo pelo site: marcar como comprada, ocultar, editar e criar novas.
+   Depois da primeira vez, o que vale é o que está gravado no banco. */
+const MELHORIAS_PADRAO = [
+  { id: 'drone', t: 'Drone de vigilância danificado', img: 'img/zn-drone.jpg', custo: { M: 1, m: 8 }, usoDia: true, drone: true,
+    desc: 'Escolha uma sala conectada ao próximo limiar e revele previamente algumas informações.' },
+  { id: 'filtro-agua', t: 'Filtro de água', img: 'img/zn-filtro-agua.jpg', comprado: true, estoque: { agua: 6 },
+    desc: 'Concede 6 águas por dia.' },
+  { id: 'geladeira', t: 'Geladeira chique', img: 'img/zn-geladeira.jpg', comprado: true, estoque: { comida: 6 },
+    desc: 'Concede 6 comidas por dia.' },
+  { id: 'camas-normais', t: 'Camas normais', img: 'img/zn-camas-normais.jpg', comprado: true,
+    desc: "Concedem 'Descanso Normal'." },
+  { id: 'camas-confortaveis', t: 'Camas confortáveis', img: 'img/zn-camas-confortaveis.jpg', custo: { M: 1, m: 6 },
+    desc: "Concedem 'Descanso Luxuoso'." },
+  { id: 'painel-anticolapso', t: 'Painel anti-colapso', img: 'img/zn-painel-anticolapso.jpg', custo: { M: 5, m: 15 }, usoDia: true,
+    desc: 'Uma vez por dia, previne um colapso de sala. Funciona como um "escudo" contra falhas graves.' },
+  { id: 'cortina-seguranca', t: 'Cortina de segurança anti-Faísca', img: 'img/zn-cortina-seguranca.jpg', custo: { M: 2, m: 8 },
+    desc: 'Uma barreira de luz vermelha impede que a Faísca marque alguém na Zona Neutra.' },
+  { id: 'posto-curativos', t: 'Posto de curativos de emergência', img: 'img/zn-posto-curativos.jpg', custo: { M: 1, m: 6 },
+    desc: 'Teste de Medicina recebe +5 dentro da Zona Neutra.' },
+  { id: 'defesas-padroes', t: 'Defesas padrões', img: 'img/zn-defesas-padroes.jpg', custo: { M: 3, m: 12 },
+    desc: "Concede bônus de +10 para os jogadores dentro da 'Zona Segura'." },
+  { id: 'hidropressao', t: 'Painel de hidropressão manual', img: 'img/zn-hidropressao.jpg', custo: { M: 0, m: 4 },
+    desc: '+2 em qualquer teste físico feito na próxima sala visitada.' },
+  { id: 'pressurizacao', t: 'Sistema de pressurização reversa', img: 'img/zn-pressurizacao.jpg', custo: { M: 3, m: 14 }, limite: true,
+    desc: 'Aumenta o limite de barulho necessário para atrair uma ameaça.' },
+];
